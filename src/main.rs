@@ -28,38 +28,26 @@ impl AIList {
         let mut max_ends: Vec<usize> = Vec::new();
         let mut header_list: Vec<usize> = Vec::new();
 
+        
+
         loop {
             
-            let interval_list = intervals;
-            let results = decompose(interval_list, minimum_coverage_length);
+            let results = Self::decompose(intervals, minimum_coverage_length);
             
-            starts.append(results[0]);
-            ends.append(results[1]);
-            max_ends.append(results[2]);
+            starts.extend(results.0);
+            ends.extend(results.1);
+            max_ends.extend(results.2);
 
-            interval_list = results[3];
+            intervals = results.3;
 
-            if(interval_list.len() == 0) {
+            if intervals.len() == 0 {
                 break;
             } else {
-                if let Some(last) = header_list.last() {
-                    header_list.push(results[0].len()+last);
-                }
+                header_list.push(starts.len());
             }
-                
+               
         }
 
-
-        let mut max: usize = 0; 
-
-
-
-        for interval in intervals.iter() {
-            max = if max > interval.end { max } else { interval.end };
-            starts.push(interval.start);
-            ends.push(interval.end);
-            max_ends.push(max); 
-        }
 
         AIList {
             starts, 
@@ -76,7 +64,7 @@ impl AIList {
         let mut max_ends: Vec<usize> = Vec::new();
         let mut l2: Vec<Interval> = Vec::new();
         
-        for (index, interval) in intervals.enumerate() {
+        for (index, interval) in intervals.iter().enumerate() {
             let mut count = 0;
             for i in 1..(minimum_coverage_length*2) {
                 match intervals.get(index+i) {
@@ -85,7 +73,10 @@ impl AIList {
                 }
             }
             if count >= minimum_coverage_length {
-                l2.push(interval);
+                l2.push(Interval {
+                    start: interval.start,
+                    end: interval.end,
+                });
             } else {
                 starts.push(interval.start);
                 ends.push(interval.end)
@@ -122,6 +113,25 @@ impl AIList {
         return results_list;
     }
 
+    fn print(&self) {
+        for element in self.starts.iter() {
+           print!("{}, ", element);
+        }
+        println!("");
+        for element in self.ends.iter() {
+            print!("{}, ", element);
+        }
+        println!("");
+        for element in self.max_ends.iter() {
+            print!("{}, ", element);
+        }
+        println!("");
+        for element in self.header_list.iter() {
+            print!("{}, ", element);
+        }
+
+    }
+
 
 }
 
@@ -144,11 +154,12 @@ fn main() {
         Interval { start: 38, end: 40},
     ];
 
-    let ai_list = AIList::new(intervals);
-    let hi = ai_list.query(&Interval {start: 18, end: 20});
-    for element in hi.iter() {
-        print!("{}, ", element);
-    }
+    let ai_list = AIList::new(intervals, 3);
+    // let hi = ai_list.query(&Interval {start: 18, end: 20});
+    // for element in hi.iter() {
+    //     print!("{}, ", element);
+    // }
+    ai_list.print();
 }
 
 
