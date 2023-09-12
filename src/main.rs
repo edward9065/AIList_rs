@@ -26,17 +26,17 @@ impl AIList {
         let mut starts: Vec<usize> = Vec::new();
         let mut ends: Vec<usize> = Vec::new();
         let mut max_ends: Vec<usize> = Vec::new();
-        let mut header_list: Vec<usize> = Vec::new();
+        let mut header_list: Vec<usize> = vec![0];
 
         
 
         loop {
             
-            let results = Self::decompose(intervals, minimum_coverage_length);
+            let mut results = Self::decompose(intervals, minimum_coverage_length);
             
-            starts.extend(results.0);
-            ends.extend(results.1);
-            max_ends.extend(results.2);
+            starts.append(&mut results.0);
+            ends.append(&mut results.1);
+            max_ends.append(&mut results.2);
 
             intervals = results.3;
 
@@ -93,27 +93,58 @@ impl AIList {
         (starts, ends, max_ends, l2)
     }
 
-    fn query(&self, interval: &Interval) -> Vec<Interval> {
+    fn query_slice(interval: &Interval, starts: &[usize], ends: &[usize], max_ends: &[usize]) -> Vec<Interval>{
         let mut results_list: Vec<Interval> = Vec::new();
-        let  mut i = self.starts.partition_point(|&x| x < interval.end);
-      
+        let mut i = starts.partition_point(|&x| x < interval.end);
+
         while i > 0 {
             i-=1;
-            if interval.start > self.ends[i] { //this means that there is no interssection
-                if interval.start > self.max_ends[i] { //there is no further intersection
+            if interval.start > ends[i] { //this means that there is no intersection
+                if interval.start > max_ends[i] { //there is no further intersection
                     return results_list;
                 }
             } else {
                 results_list.push(Interval {
-                    start: self.starts[i],
-                    end: self.ends[i],
+                    start: starts[i],
+                    end: ends[i],
                 })
             }
         }
         return results_list;
     }
 
+    fn query(&self, interval: &Interval) -> Vec<Interval> {
+        let mut results_list: Vec<Interval> = Vec::new();
+        
+        for i in 0..(self.header_list.len()-1) {
+            results_list.append(
+                &mut Self::query_slice(
+                    interval, 
+                    &self.starts[self.header_list[i]..self.header_list[i+1]],
+                    &self.ends[self.header_list[i]..self.header_list[i+1]],
+                    &self.max_ends[self.header_list[i]..self.header_list[i+1]],
+                )
+            );
+        }
+        // now do the last decomposed AIList
+        let i = self.header_list.len()-1;
+        results_list.extend(
+            Self::query_slice(
+                interval, 
+                &self.starts[self.header_list[i]..],
+                &self.ends[self.header_list[i]..],
+                &self.max_ends[self.header_list[i]..],
+            )
+        );
+        
+        return results_list;
+    }
+
+  
+
+
     fn print(&self) {
+        println!("");
         for element in self.starts.iter() {
            print!("{}, ", element);
         }
@@ -129,6 +160,8 @@ impl AIList {
         for element in self.header_list.iter() {
             print!("{}, ", element);
         }
+        println!("");
+
 
     }
 
@@ -155,10 +188,12 @@ fn main() {
     ];
 
     let ai_list = AIList::new(intervals, 3);
-    // let hi = ai_list.query(&Interval {start: 18, end: 20});
-    // for element in hi.iter() {
-    //     print!("{}, ", element);
-    // }
+    let interval = Interval {start: 1, end: 6};
+    let hi = ai_list.query(&interval);
+    println!("Interval: {}", interval);
+    for element in hi.iter() {
+        print!("{}, ", element);
+    }
     ai_list.print();
 }
 
