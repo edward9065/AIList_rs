@@ -1,7 +1,7 @@
 use augmented_interval_list::interval::Interval as Interval;
 use augmented_interval_list::ailist::AIList;
 fn main() {
-    let intervals: Vec<Interval<u8>> = vec![
+    let mut intervals: Vec<Interval<u8>> = vec![
         Interval { start: 1, end: 2 },
         Interval { start: 3, end: 8 },
         Interval { start: 5, end: 7 },
@@ -18,7 +18,7 @@ fn main() {
         Interval { start: 38, end: 40},
     ];
 
-    let ai_list = AIList::new(intervals, 3);
+    let ai_list = AIList::new(&mut intervals, 3);
     let interval = Interval {start: 13, end: 22};
     
 

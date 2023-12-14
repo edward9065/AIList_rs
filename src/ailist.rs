@@ -11,7 +11,7 @@ pub struct AIList<T: PrimInt + Unsigned + Ord + Clone + Send + Sync> {
 }
 
 impl<T: PrimInt + Unsigned + Ord + Clone + Send + Sync + std::fmt::Display> AIList<T> {
-    pub fn new(mut intervals: Vec<Interval<T>>, minimum_coverage_length: usize) -> AIList<T> {
+    pub fn new(intervals: &mut Vec<Interval<T>>, minimum_coverage_length: usize) -> AIList<T> {
         // in the future, clone and sort...
         intervals.sort_by_key(|key| key.start);
        
@@ -28,7 +28,7 @@ impl<T: PrimInt + Unsigned + Ord + Clone + Send + Sync + std::fmt::Display> AILi
             ends.append(&mut results.1);
             max_ends.append(&mut results.2);
 
-            intervals = results.3;
+            *intervals = results.3;
 
             if intervals.len() == 0 {
                 break;
@@ -46,7 +46,7 @@ impl<T: PrimInt + Unsigned + Ord + Clone + Send + Sync + std::fmt::Display> AILi
         }
     }
 
-    fn decompose(intervals: Vec<Interval<T>>, minimum_coverage_length: usize) -> (Vec<T>, Vec<T>, Vec<T>, Vec<Interval<T>>) {
+    fn decompose(intervals: &Vec<Interval<T>>, minimum_coverage_length: usize) -> (Vec<T>, Vec<T>, Vec<T>, Vec<Interval<T>>) {
         // look at the next minL*2 intervals
         let mut starts: Vec<T> = Vec::new();
         let mut ends: Vec<T> = Vec::new();
