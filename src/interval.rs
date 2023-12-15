@@ -1,8 +1,8 @@
 use std::fmt;
 
 pub struct Interval {
-    pub start: usize,
-    pub end: usize,
+    pub start: u32,
+    pub end: u32,
 }
 
 impl fmt::Display for Interval {

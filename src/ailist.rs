@@ -1,9 +1,9 @@
 use crate::interval::Interval;
 
 pub struct AIList {
-    starts: Vec<usize>, 
-    ends: Vec<usize>,
-    max_ends: Vec<usize>,
+    starts: Vec<u32>, 
+    ends: Vec<u32>,
+    max_ends: Vec<u32>,
     header_list: Vec<usize>,
 }
 
@@ -12,9 +12,9 @@ impl AIList {
         // in the future, clone and sort...
         intervals.sort_by_key(|key| key.start);
        
-        let mut starts: Vec<usize> = Vec::new();
-        let mut ends: Vec<usize> = Vec::new();
-        let mut max_ends: Vec<usize> = Vec::new();
+        let mut starts: Vec<u32> = Vec::new();
+        let mut ends: Vec<u32> = Vec::new();
+        let mut max_ends: Vec<u32> = Vec::new();
         let mut header_list: Vec<usize> = vec![0];
 
         loop {
@@ -43,11 +43,11 @@ impl AIList {
         }
     }
 
-    fn decompose(intervals: Vec<Interval>, minimum_coverage_length: usize) -> (Vec<usize>, Vec<usize>, Vec<usize>, Vec<Interval>) {
+    fn decompose(intervals: Vec<Interval>, minimum_coverage_length: usize) -> (Vec<u32>, Vec<u32>, Vec<u32>, Vec<Interval>) {
         // look at the next minL*2 intervals
-        let mut starts: Vec<usize> = Vec::new();
-        let mut ends: Vec<usize> = Vec::new();
-        let mut max_ends: Vec<usize> = Vec::new();
+        let mut starts: Vec<u32> = Vec::new();
+        let mut ends: Vec<u32> = Vec::new();
+        let mut max_ends: Vec<u32> = Vec::new();
         let mut l2: Vec<Interval> = Vec::new();
         
         for (index, interval) in intervals.iter().enumerate() {
@@ -69,7 +69,7 @@ impl AIList {
             }
         }
 
-        let mut max: usize = 0; 
+        let mut max: u32 = 0; 
 
         for end in ends.iter() {
             max = if max > *end { max } else { *end };
@@ -79,7 +79,7 @@ impl AIList {
         (starts, ends, max_ends, l2)
     }
 
-    fn query_slice(interval: &Interval, starts: &[usize], ends: &[usize], max_ends: &[usize]) -> Vec<Interval>{
+    fn query_slice(interval: &Interval, starts: &[u32], ends: &[u32], max_ends: &[u32]) -> Vec<Interval>{
         let mut results_list: Vec<Interval> = Vec::new();
         let mut i = starts.partition_point(|&x| x < interval.end);
 
